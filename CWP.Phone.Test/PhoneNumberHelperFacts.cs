@@ -120,5 +120,50 @@ namespace CWP.Phone.Test
 
             Assert.Equal(expectation, serialized);
         }
+
+        [Fact]
+        public void should_get_e164_phone_nubmer_with_country_code()
+        {
+            IPhoneNumber phoneNumber = new PhoneNumberImpl
+            {
+                CountryCode = "CN",
+                Number = "13801231234"
+            };
+
+            ValidationResult errorResult;
+            string number = PhoneNumberHelper.TryConvertToE164PhoneNumber(phoneNumber, out errorResult);
+
+            Assert.Equal("+8613801231234", number);
+        }
+
+        [Theory]
+        [InlineData("", "123")]
+        [InlineData("xx", "13811814544")]
+        [InlineData("CN", "")]
+        public void should_get_number_if_is_legacy(string countryCode, string number)
+        {
+            IPhoneNumber phoneNumber = new PhoneNumberImpl
+            {
+                CountryCode = countryCode,
+                Number = number
+            };
+
+            ValidationResult errorResult;
+            Assert.Equal(number, PhoneNumberHelper.TryConvertToE164PhoneNumber(phoneNumber, out errorResult));
+        }
+
+        [Fact]
+        public void should_get_empty_if_is_empty()
+        {
+            IPhoneNumber phoneNumber = new PhoneNumberImpl
+            {
+                CountryCode = "",
+                Number = ""
+            };
+
+            ValidationResult errorResult;
+
+            Assert.Empty(PhoneNumberHelper.TryConvertToE164PhoneNumber(phoneNumber, out errorResult));
+        }
     }
 }

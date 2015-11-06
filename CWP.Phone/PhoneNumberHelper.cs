@@ -36,6 +36,13 @@ namespace CWP.Phone
             return result;
         }
 
+        public static string TryConvertToE164PhoneNumber(IPhoneNumber phoneNumber, out ValidationResult errorType)
+        {
+            Exception error;
+            string e164PhoneNumber = getE164PhoneNumber(phoneNumber, out errorType, out error);
+            return e164PhoneNumber ?? phoneNumber.Number;
+        }
+
         public static string TryConvertToRegionE164PhoneNumber(
             IPhoneNumber phoneNumber,
             out ValidationResult errorType)
@@ -49,6 +56,18 @@ namespace CWP.Phone
             out ValidationResult errorType,
             out Exception error)
         {
+            string e164PhoneNumber = getE164PhoneNumber(phoneNumber, out errorType, out error);
+            
+            if (string.IsNullOrEmpty(e164PhoneNumber))
+            {
+                return e164PhoneNumber;
+            }
+
+            return phoneNumber.CountryCode + "|" + e164PhoneNumber;
+        }
+
+        static string getE164PhoneNumber(IPhoneNumber phoneNumber, out ValidationResult errorType, out Exception error)
+        {
             errorType = ValidationResult.Success;
             error = null;
 
@@ -56,11 +75,8 @@ namespace CWP.Phone
             {
                 return string.Empty;
             }
-
-            string regionName = phoneNumber.CountryCode;
-            string number = RemovePunctuation(phoneNumber.Number);
-
-            if (!Regions.IsSupportedRegion(regionName) || string.IsNullOrEmpty(number))
+            
+            if (!Regions.IsSupportedRegion(phoneNumber.CountryCode) || string.IsNullOrEmpty(phoneNumber.Number))
             {
                 errorType = ValidationResult.InvalidNumber;
                 error = new FormatException(
@@ -70,8 +86,7 @@ namespace CWP.Phone
                         phoneNumber.Number));
                 return null;
             }
-
-            return regionName + "|" + GetCountryCode(regionName) + number;
+            return GetCountryCode(phoneNumber.CountryCode) + RemovePunctuation(phoneNumber.Number);
         }
 
         static string RemovePunctuation(string nationalNumber)
