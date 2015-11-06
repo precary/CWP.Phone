@@ -1,0 +1,14 @@
+﻿<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>$id$</id>
+    <version>$version$</version>
+    <title>$title$</title>
+    <authors>ThoughtWorks</authors>
+    <owners>ThoughtWorks</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Phone number utility</description>
+    <copyright>Copyright 2015</copyright>
+    <tags></tags>
+  </metadata>
+</package>
